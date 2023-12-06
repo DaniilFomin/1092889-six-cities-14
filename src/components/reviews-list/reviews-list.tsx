@@ -11,13 +11,14 @@ interface ReviewsListProps {
 
 const ReviewsList = ({comments}: ReviewsListProps) => {
   const auth = useAppSelector((state) => state.authentication.status);
+  const sortedComments = comments.toSorted((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   return (
     <section className="offer__reviews reviews">
       <h2 className="reviews__title">
         {isPlural(comments.length) ? 'Reviews' : 'Review'} · <span className="reviews__amount">{comments.length}</span>
       </h2>
       <ul className="reviews__list">
-        {comments.toReversed().slice(0,10).map((comment: Comment) => (
+        {sortedComments.toReversed().slice(0,10).map((comment: Comment) => (
           <li className="reviews__item" key={comment.id}>
             <div className="reviews__user user">
               <div className="reviews__avatar-wrapper user__avatar-wrapper">

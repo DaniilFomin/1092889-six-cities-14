@@ -42,8 +42,9 @@ const commentsSlice = createSlice({
       state.requestStatus = REQUEST_STATUS.REJECTED;
     });
     builder.addCase(fetchComments.pending, (state: CommentsState) => {
-      state.requestStatus = REQUEST_STATUS.PENDING;
       state.comments = [];
+      state.requestStatus = REQUEST_STATUS.PENDING;
+
     });
     builder.addCase(sendComment.fulfilled, (state, action: PayloadAction<Comment>) => {
       state.comments.push(action.payload);

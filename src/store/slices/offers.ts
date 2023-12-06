@@ -84,14 +84,20 @@ const offersSlice = createSlice({
       state.requestStatus = REQUEST_STATUS.PENDING;
     });
     builder.addCase(changeFavoriteStatus.fulfilled, (state, action) => {
-      const replaceElement = state.offers.find((el) => el.id === action.payload.id)!;
-      if(replaceElement) {
-        replaceElement.isFavorite = action.payload.isFavorite;
-      } else if (state.selectedOffer!.id === action.payload.id){
-        state.selectedOffer!.isFavorite = action.payload.isFavorite;
-      } else {
-        const element = state.nearOffers.find((el) => el.id === action.payload.id)!;
-        element.isFavorite = action.payload.isFavorite;
+      const offersElement = state.offers.find((el) => el.id === action.payload.id)!;
+      const selectedOfferElement = (state.selectedOffer) ? state.selectedOffer : undefined;
+      const nearOffersElement = state.nearOffers.find((el) => el.id === action.payload.id);
+
+      if(offersElement) {
+        offersElement.isFavorite = action.payload.isFavorite;
+      }
+      if(selectedOfferElement) {
+        if (state.selectedOffer!.id === action.payload.id) {
+          state.selectedOffer!.isFavorite = action.payload.isFavorite;
+        }
+      }
+      if (nearOffersElement) {
+        nearOffersElement.isFavorite = action.payload.isFavorite;
       }
       state.requestStatus = REQUEST_STATUS.FULFILLED;
     });

@@ -1,7 +1,6 @@
 import {FormEvent, useState} from 'react';
 import {Fragment} from 'react';
 import {useAppSelector} from '../../hooks/store.ts';
-import {REQUEST_STATUS} from '../../constants/constants.ts';
 import {store} from '../../store/store.ts';
 import {sendComment} from '../../store/slices/comments.ts';
 
@@ -10,8 +9,8 @@ const ReviewForm = () => {
     comment: '',
     rating: 0,
   });
+  const [isDisabled, setIsDisabled] = useState(false);
 
-  const requestStatus = useAppSelector((state) => state.comments.requestStatus);
   const selectedOfferId = useAppSelector((state) => state.offers.selectedOffer!.id);
 
   const ratingTable = [
@@ -19,7 +18,7 @@ const ReviewForm = () => {
     {id: '4-stars', value: 4, title: 'good'},
     {id: '3-stars', value: 3, title: 'not bad'},
     {id: '2-stars', value: 2, title: 'badly'},
-    {id: '1-star', value: 1, title: 'terribly'}
+    {id: '1-stars', value: 1, title: 'terribly'}
   ];
   const isValid = () => ((review.rating >= 1 && review.comment.length >= 50 && review.comment.length <= 300));
   const handleRatingChange = (evt : React.ChangeEvent<HTMLInputElement>) => {
@@ -35,12 +34,20 @@ const ReviewForm = () => {
   const handleFormSubmit = (evt: FormEvent) => {
     evt.preventDefault();
     const form = evt.target as HTMLFormElement;
-    form.reset();
-    store.dispatch(sendComment({comment:review, offerId: selectedOfferId}));
-    setReview({
-      comment: '',
-      rating: 0,});
+    setIsDisabled(true);
+
+    store.dispatch(sendComment({comment:review, offerId: selectedOfferId})).then((value) => {
+      if(value.meta.requestStatus === 'rejected') {
+        throw new Error('Comment was not delivered');
+      }
+      setReview({comment: '', rating: 0,});
+      form.reset();
+    }).catch()
+      .finally(() =>{
+        setIsDisabled(false);
+      });
   };
+
 
   return (
     <form className="reviews__form form" action="#" method="post" onSubmit={handleFormSubmit}>
@@ -53,11 +60,11 @@ const ReviewForm = () => {
             <input
               className="form__rating-input visually-hidden"
               name="rating"
-              defaultValue={ratingValue.value}
+              value={ratingValue.value}
               id={ratingValue.id}
               type="radio"
               onChange={handleRatingChange}
-              disabled={requestStatus === REQUEST_STATUS.PENDING}
+              disabled={isDisabled}
               checked={ratingValue.value === review.rating}
             />
             <label
@@ -78,6 +85,7 @@ const ReviewForm = () => {
         placeholder="Tell how was your stay, what you like and what can be improved"
         defaultValue={review.comment}
         onChange={handleInputChange}
+        disabled={isDisabled}
       />
       <div className="reviews__button-wrapper">
         <p className="reviews__help">
@@ -89,7 +97,7 @@ const ReviewForm = () => {
         <button
           className="reviews__submit form__submit button"
           type="submit"
-          disabled={!isValid() || requestStatus === REQUEST_STATUS.PENDING}
+          disabled={!isValid() || isDisabled}
         >
           Submit
         </button>

@@ -6,6 +6,7 @@ import {useAppSelector} from '../../hooks/store.ts';
 import {store} from '../../store/store.ts';
 import {fetchOffer} from '../../store/slices/offers.ts';
 import {EmptyFavorites} from '../../components/empty/empty-favorites.tsx';
+import {NavLink} from 'react-router-dom';
 
 type GroupedOffers = {[k:string]: Offer[]}
 
@@ -36,9 +37,9 @@ const FavoritesPage = () => {
                   <li className="favorites__locations-items" key={group[0]}>
                     <div className="favorites__locations locations locations--current">
                       <div className="locations__item">
-                        <a className="locations__item-link" href="#">
+                        <NavLink className="locations__item-link" to={`/${group[0]}`}>
                           <span>{group[0]}</span>
-                        </a>
+                        </NavLink>
                       </div>
                     </div>
                     <div className="favorites__places">
@@ -56,7 +57,7 @@ const FavoritesPage = () => {
         </main>
       )}
       <footer className="footer container">
-        <a className="footer__logo-link" href="main.html">
+        <NavLink className="footer__logo-link" to={'/'}>
           <img
             className="footer__logo"
             src="img/logo.svg"
@@ -64,7 +65,7 @@ const FavoritesPage = () => {
             width={64}
             height={33}
           />
-        </a>
+        </NavLink>
       </footer>
     </React.Fragment>
   );

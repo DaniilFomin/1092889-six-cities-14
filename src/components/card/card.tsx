@@ -6,6 +6,7 @@ import {useActionCreators, useAppSelector} from '../../hooks/store.ts';
 import {offersActions} from '../../store/slices/offers.ts';
 import {store} from '../../store/store.ts';
 import {changeFavoriteStatus} from '../../store/slices/favorites.ts';
+import clsx from 'clsx';
 
 type CardType = 'City' | 'Near-Places' | 'Favorites'
 
@@ -53,7 +54,7 @@ export const Card = (props: CardProps) => {
     <article className={`${typeValues!.articleClass} place-card`} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {props.isPremium ? <div className="place-card__mark"><span>Premium</span></div> : ''}
       <div className={`${typeValues!.imageClass} place-card__image-wrapper`}>
-        <Link to={`/offer/${props.id.toString()}`}>
+        <Link to={`/offer/${props.id}`}>
           <img
             className="place-card__image"
             src={props.previewImage}
@@ -70,7 +71,7 @@ export const Card = (props: CardProps) => {
             <span className="place-card__price-text">/&nbsp; night</span>
           </div>
           <button
-            className={`place-card__bookmark button${(props.isFavorite) ? ' place-card__bookmark-button--active' : ''} button`}
+            className={clsx('place-card__bookmark-button', 'button' , {'place-card__bookmark-button--active': props.isFavorite})}
             type="button"
             onClick={handleBookmarkButton}
           >

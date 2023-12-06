@@ -1,23 +1,31 @@
 import {useDocumentTitle} from '../../hooks/useDocumentTitle.ts';
 import {store} from '../../store/store.ts';
 import {login} from '../../store/slices/authentication.ts';
-import {FormEvent} from 'react';
-import {AUTHORIZATION_STATUS} from '../../constants/constants.ts';
-import {Navigate} from 'react-router-dom';
+import {FormEvent, useState} from 'react';
+import {AUTHORIZATION_STATUS, CITIES} from '../../constants/constants.ts';
+import {Navigate, NavLink} from 'react-router-dom';
 import {LoginCredentials} from '../../contracts/contaracts.ts';
 import {useAppSelector} from '../../hooks/store.ts';
 
 
 export const LoginPage = () => {
   const authStatus = useAppSelector((state) => state.authentication.status);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [randomCity] = useState(CITIES[Math.floor(Math.random() * CITIES.length)]);
   useDocumentTitle('Login');
   const handleLogin = (evt: FormEvent) => {
     evt.preventDefault();
     const target = evt.target as HTMLFormElement;
     const data = new FormData(target);
     const credentials = Object.fromEntries(data.entries()) as LoginCredentials;
-    store.dispatch(login(credentials));
+    setIsDisabled(true);
+    store.dispatch(login(credentials)).then(() => {
+      setIsDisabled(false);
+    }).catch(() => {
+      setIsDisabled(false);
+    });
   };
+
   return (
     <div className="page page--gray page--login">
       {(authStatus === AUTHORIZATION_STATUS.AUTHORIZED) ? <Navigate to={'/'} /> : ''}
@@ -42,7 +50,7 @@ export const LoginPage = () => {
         <div className="page__login-container container">
           <section className="login">
             <h1 className="login__title">Sign in</h1>
-            <form className="login__form form" action="login" method="post" onSubmit={handleLogin}>
+            <form className="login__form form" action="#" method="post" onSubmit={handleLogin}>
               <div className="login__input-wrapper form__input-wrapper">
                 <label className="visually-hidden">E-mail</label>
                 <input
@@ -50,6 +58,8 @@ export const LoginPage = () => {
                   type="email"
                   name="email"
                   placeholder="Email"
+                  disabled={isDisabled}
+                  pattern="^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$"
                   required
                 />
               </div>
@@ -60,19 +70,21 @@ export const LoginPage = () => {
                   type="password"
                   name="password"
                   placeholder="Password"
+                  pattern="^(?=.*[a-zA-Z])(?=.*\d).+$"
+                  disabled={isDisabled}
                   required
                 />
               </div>
-              <button className="login__submit form__submit button" type="submit">
+              <button className="login__submit form__submit button" type="submit" disabled={isDisabled}>
                 Sign in
               </button>
             </form>
           </section>
           <section className="locations locations--login locations--current">
             <div className="locations__item">
-              <a className="locations__item-link" href="/Amsterdam">
-                <span>Amsterdam</span>
-              </a>
+              <NavLink to={`/${randomCity.name}`} className="locations__item-link" >
+                <span>{randomCity.name}</span>
+              </NavLink>
             </div>
           </section>
         </div>
